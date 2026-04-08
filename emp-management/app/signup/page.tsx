@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { Suspense, useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Mail, Lock, User, Building2, CheckCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -32,6 +32,14 @@ interface PasswordStrength {
 }
 
 export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500" /></div>}>
+      <SignUpContent />
+    </Suspense>
+  )
+}
+
+function SignUpContent() {
   const [formData, setFormData] = useState<SignUpFormData>({
     fullName: '',
     email: '',

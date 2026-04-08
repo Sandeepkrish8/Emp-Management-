@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { Suspense, useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, ArrowRight, Mail, Lock, CheckCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -20,6 +20,14 @@ interface LoginErrors {
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500" /></div>}>
+      <LoginContent />
+    </Suspense>
+  )
+}
+
+function LoginContent() {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
