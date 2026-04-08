@@ -1,0 +1,33 @@
+/* Focus visible styles for better accessibility */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* Smooth animations */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-popup-enter {
+    animation: popupEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-bounce-slow {
+    animation: bounceSlow 4s ease-in-out infinite;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-popup-enter,
+  .animate-bounce-slow {
+    animation: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  dialog,
+  [role='dialog'] {
+    display: none !important;
+  }
+}

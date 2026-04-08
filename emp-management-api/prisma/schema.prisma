@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("employee")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs AuditLog[]
+  reviews   PerformanceReview[] @relation("reviewer")
+
+  @@index([email])
+  @@index([role])
+}
+
+model Employee {
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
+  phoneNumber      String
+  departmentId     String
+  department       Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  position         String
+  salary           Float
+  hireDate         DateTime
+  status           String    @default("active")
+  emergencyContact String?
+  address          String?
+  dateOfBirth      DateTime?
+  profileImage     String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  attendanceRecords  AttendanceRecord[]
+  leaveRequests      LeaveRequest[]
+  performanceReviews PerformanceReview[] @relation("employee")
+  managedDepartments Department[]        @relation("manager")
+
+  @@index([departmentId])
+  @@index([email])
+  @@index([status])
+}
+
+model Department {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  managerId   String?
+  manager     Employee?  @relation("manager", fields: [managerId], references: [id], onDelete: SetNull)
+  budget      Float      @default(0)
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([managerId])
+}
+
+model AttendanceRecord {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  status      String
+  checkIn     DateTime?
+  checkOut    DateTime?
+  hoursWorked Float?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
+}
+
+model LeaveRequest {
+  id               String   @id @default(cuid())
+  employeeId       String
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  type             String
+  startDate        DateTime
+  endDate          DateTime
+  totalDays        Float
+  reason           String?
+  status           String   @default("pending")
+  approvedBy       String?
+  approverComments String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([startDate])
+}
+
+model PerformanceReview {
+  id           String   @id @default(cuid())
+  employeeId   String
+  employee     Employee @relation("employee", fields: [employeeId], references: [id], onDelete: Cascade)
+  reviewerId   String
+  reviewer     User     @relation("reviewer", fields: [reviewerId], references: [id])
+  rating       Float
+  comment      String
+  strengths    String[]
+  improvements String[]
+  goals        String[]
+  reviewDate   DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([reviewerId])
+  @@index([reviewDate])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  resource   String
+  resourceId String
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+
+  @@index([userId])
+  @@index([resource])
+  @@index([timestamp])
+}
